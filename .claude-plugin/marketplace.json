@@ -1,0 +1,13 @@
+{
+  "name": "nextline-pgi",
+  "owner": {
+    "name": "Joel"
+  },
+  "plugins": [
+    {
+      "name": "nextline-pgi-flutter",
+      "source": "./",
+      "description": "Skills compartidas para los proyectos Flutter de Nextline PGI (UNITED, FinsofApp y sus versiones)."
+    }
+  ]
+}
