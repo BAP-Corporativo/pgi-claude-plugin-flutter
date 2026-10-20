@@ -18,7 +18,7 @@ Las skills no tienen valores de proyecto fijos: leen el `CLAUDE.md` de cada repo
 Dentro de Claude Code:
 
 ```
-/plugin marketplace add <usuario-u-org>/nextline-pgi-flutter
+/plugin marketplace add Jols7/pgi-claude-plugin
 /plugin install nextline-pgi-flutter@nextline-pgi
 ```
 
@@ -37,7 +37,7 @@ O activa el auto-update del marketplace en `/plugin` → Marketplaces.
 Desde la raíz del proyecto Flutter:
 
 ```bash
-claude plugin marketplace add <usuario-u-org>/nextline-pgi-flutter --scope project
+claude plugin marketplace add Jols7/pgi-claude-plugin --scope project
 ```
 
 Commitea el `.claude/settings.json` que se genera. Debe quedar así:
@@ -45,7 +45,7 @@ Commitea el `.claude/settings.json` que se genera. Debe quedar así:
 ```json
 {
   "extraKnownMarketplaces": {
-    "nextline-pgi": { "source": { "source": "github", "repo": "<usuario-u-org>/nextline-pgi-flutter" } }
+    "nextline-pgi": { "source": { "source": "github", "repo": "Jols7/pgi-claude-plugin" } }
   },
   "enabledPlugins": { "nextline-pgi-flutter@nextline-pgi": true }
 }
@@ -54,6 +54,6 @@ Commitea el `.claude/settings.json` que se genera. Debe quedar así:
 ## Desarrollar y probar sin publicar
 
 ```bash
-claude --plugin-dir ./nextline-pgi-flutter
+claude --plugin-dir ./pgi-claude-plugin
 claude plugin validate .
 ```
