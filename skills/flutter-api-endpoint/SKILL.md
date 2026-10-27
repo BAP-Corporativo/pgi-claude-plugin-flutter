@@ -285,6 +285,64 @@ getIt.registerLazySingleton<TransfersApi>(() => TransfersApi(apiClient: getIt<Ap
 getIt.registerLazySingleton<TransfersRepository>(() => TransfersRepository(getIt<TransfersApi>()));
 ```
 
+## Response envelope
+
+Newer endpoints answer `{ "detail": "...", "content": { ... } }`. Model the envelope in the DTO (`Dto<Name>Response { String? detail; Dto<Name>Content content; }`) and unwrap it in the mapper, so `fromJson(response.data)` stays the same for every endpoint. Nested objects get their own `@JsonSerializable` class in the same file. Full example: `figma-hu-to-flutter/references/data-contract.md`.
+
+## Mock-first (endpoint not ready yet)
+
+Build the DTO from the **agreed mock JSON** and serve it from the networking layer, so Api, Repository, provider and UI are the final code from day one. When the endpoint ships, delete its mock entry; if the real JSON differs, only the DTO and mapper change.
+
+```dart
+// lib/core/services/network/mocks/investment_simulator_mocks.dart
+const investmentSimulatorLevelsMock = r'''
+{
+  "detail": "Niveles de inversión obtenidos con éxito",
+  "content": { "levels": [
+    { "id": 471, "title": "Control 16", "annual_return": 16, "term": 0, "min_amount": 20000, "max_amount": 250000, "currency_code": "MXN" },
+    { "id": 472, "title": "Plus 17", "annual_return": 17, "term": 180, "min_amount": 250001, "max_amount": 1000000, "currency_code": "MXN" },
+    { "id": 474, "title": "Impulso 18", "annual_return": 18, "term": 360, "min_amount": 1000001, "max_amount": null, "currency_code": "MXN" }
+  ] }
+}
+''';
+```
+
+```dart
+// lib/core/services/network/mocks/mock_interceptor.dart
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+
+class MockInterceptor extends Interceptor {
+  MockInterceptor(this.routes);
+
+  /// Relative path (no leading slash, no query) → JSON body.
+  final Map<String, String> routes;
+
+  @override
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    final path = options.path.replaceFirst(RegExp(r'^/'), '');
+    final body = routes[path];
+    if (body == null) return handler.next(options);
+    await Future.delayed(const Duration(milliseconds: 400)); // exercises loading states
+    handler.resolve(Response(requestOptions: options, statusCode: 200, data: jsonDecode(body)));
+  }
+}
+```
+
+Register it where `ApiClient` adds its interceptors, **only in the dev flavor and only when `.env` has `USE_MOCKS=true`**:
+
+```dart
+if (FlavorConfig.instance.flavor == Flavor.unitedDev && dotenv.env['USE_MOCKS'] == 'true') {
+  dio.interceptors.add(MockInterceptor({
+    'client/investment/simulator/levels': investmentSimulatorLevelsMock,
+    'client/investment/simulator': investmentSimulatorSimulationMock,
+  }));
+}
+```
+
+Rules: one mocks file per feature; the mock JSON is the contract agreed with backend (paste it in the PR); a mocked route is listed in the final report so nobody ships it believing the endpoint exists. Static mocks don't vary by query params — add a second constant and switch on `options.queryParameters` only if a state can't be reached otherwise.
+
 ## Anti-patterns
 
 | ❌ Don't | ✅ Do | Why |
@@ -296,6 +354,8 @@ getIt.registerLazySingleton<TransfersRepository>(() => TransfersRepository(getIt
 | Return `Response`, `Map<String, dynamic>` or a `Dto*` from the repository | Return a `*Model` via `toModel()` | DTOs never cross above the repository layer |
 | Parse `response.data['fee']` in the provider | Parse via DTO + mapper in the repository | Parsing stays in one typed place |
 | `toModel()` inside the DTO class | Separate `dto_<name>_mapper.dart` extension | Matches the project's file layout; keeps the generated-code file pure |
+| Mock data inside the provider or repository (`if (useMocks) return fakeModel`) | `MockInterceptor` in the networking layer | Everything above the Api stays the final code |
+| Mocks active in QA/Prod | Dev flavor + `USE_MOCKS=true` only | A mocked route in a release build is a silent fake |
 | Hand-edit `dto_*.g.dart` | Change the DTO, rerun build_runner | Generated files are overwritten |
 | Non-nullable fields for values the backend may omit | Nullable in the DTO, default in `toModel()` | Prevents `type 'Null' is not a subtype` crashes |
 | `'/client/...'` or full `https://...` URLs | `'client/...'` relative path | Base URL comes from the flavor's `.env` |
