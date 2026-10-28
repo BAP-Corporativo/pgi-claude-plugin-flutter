@@ -1,0 +1,8 @@
+{
+  "name": "pgi-cerebro",
+  "version": "0.1.0",
+  "description": "Skills del cerebro de cada proyecto PGI (p. ej. united-platform): capturar el conocimiento de los devs en docs/knowledge/.",
+  "author": {
+    "name": "BAP-Corporativo"
+  }
+}

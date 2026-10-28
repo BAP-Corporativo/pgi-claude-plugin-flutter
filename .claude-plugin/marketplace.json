@@ -1,13 +1,21 @@
 {
-  "name": "nextline-pgi",
+  "name": "pgi",
   "owner": {
-    "name": "Joel"
+    "name": "BAP-Corporativo"
+  },
+  "metadata": {
+    "description": "Plugins de Claude Code para los proyectos de PGI (UNITED, Finsof y sus versiones)."
   },
   "plugins": [
     {
-      "name": "nextline-pgi-flutter",
-      "source": "./",
-      "description": "Skills compartidas para los proyectos Flutter de Nextline PGI (UNITED, FinsofApp y sus versiones)."
+      "name": "pgi-flutter",
+      "source": "./plugins/pgi-flutter",
+      "description": "Convenciones compartidas de los proyectos Flutter de PGI: features, endpoints/DTOs, intl, flavors, builds de release y Figma → Flutter."
+    },
+    {
+      "name": "pgi-cerebro",
+      "source": "./plugins/pgi-cerebro",
+      "description": "Skills del cerebro de cada proyecto: captura de conocimiento de los devs y, a futuro, triage, specs y QA del orquestador."
     }
   ]
 }
