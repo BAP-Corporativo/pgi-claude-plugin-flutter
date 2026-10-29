@@ -6,7 +6,7 @@ contexto en `united-platform/docs/decisions/0002-marketplace-plugins.md`.
 | Plugin | Versión | Mantenedor | Qué trae |
 |---|---|---|---|
 | [`pgi-flutter`](plugins/pgi-flutter) | 1.0.0 | Joel Anaya | Convenciones de las apps Flutter |
-| [`pgi-cerebro`](plugins/pgi-cerebro) | 0.1.0 | BAP-Corporativo | Skills del repo cerebro de cada proyecto |
+| [`pgi-cerebro`](plugins/pgi-cerebro) | 0.2.0 | BAP-Corporativo | Skills del repo cerebro de cada proyecto |
 | `pgi-api` | — | IT-BAP | Pendiente: skills `pgi-*` del backend |
 
 ## `pgi-flutter`
@@ -57,7 +57,11 @@ de una persona, y `flutter-build-release` necesita macOS para el IPA y credencia
 
 | Skill | Cuándo se activa |
 |---|---|
+| `spec` | Convertir un requerimiento o bug en un spec triado y publicarlo como issue en el repo cerebro (label `spec`; `ready` lo pone una persona). Necesita `gh` |
 | `capturar-conocimiento` | Entrevistar a un dev y escribir `docs/knowledge/<area>-<nombre>.md` en el repo cerebro |
+
+Ejemplo: abre Claude Code en la carpeta del proyecto (p. ej. `PGI UNITED/`) y pide
+"haz el spec de: el admin necesita exportar los retiros del mes a Excel", o "triar el issue #12".
 
 ## Instalar
 
