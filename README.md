@@ -1,6 +1,15 @@
-# nextline-pgi-flutter
+# Marketplace `pgi` — plugins de Claude Code para PGI
 
-Plugin de Claude Code con las convenciones compartidas de los proyectos Flutter de Nextline PGI.
+Plugins compartidos por los proyectos de PGI (UNITED, FinsofApp y sus versiones). Decisión y
+contexto en `united-platform/docs/decisions/0002-marketplace-plugins.md`.
+
+| Plugin | Versión | Mantenedor | Qué trae |
+|---|---|---|---|
+| [`pgi-flutter`](plugins/pgi-flutter) | 1.0.0 | Joel Anaya | Convenciones de las apps Flutter |
+| [`pgi-cerebro`](plugins/pgi-cerebro) | 0.1.0 | BAP-Corporativo | Skills del repo cerebro de cada proyecto |
+| `pgi-api` | — | IT-BAP | Pendiente: skills `pgi-*` del backend |
+
+## `pgi-flutter`
 
 | Skill | Cuándo se activa |
 |---|---|
@@ -8,11 +17,9 @@ Plugin de Claude Code con las convenciones compartidas de los proyectos Flutter 
 | `flutter-api-endpoint` | Consumir un endpoint, crear o cambiar un DTO |
 | `flutter-intl-strings` | Agregar o cambiar textos (ARB + intl_utils) |
 | `flutter-add-flavor` | Agregar un ambiente / flavor |
-| `flutter-build-release` | Generar APK / IPA por flavor |
+| `flutter-build-release` | Generar APK / IPA por flavor (IPA solo en macOS) |
 | `figma-css-to-flutter` | Traducir CSS de Figma a widgets |
 | `figma-hu-to-flutter` | Implementar un flujo desde el HU de diseño + nodos de Figma, reutilizando widgets |
-
-## Cómo trabajan juntas
 
 Cada skill funciona sola. `figma-hu-to-flutter` es la única que orquesta a las demás:
 
@@ -24,7 +31,10 @@ Cada skill funciona sola. `figma-hu-to-flutter` es la única que orquesta a las 
 | Solo textos | `flutter-intl-strings` |
 | CSS pegado de Figma | `figma-css-to-flutter` |
 
-## Prompt para un flujo completo
+Las skills no tienen valores de proyecto fijos: leen la tabla **Project variables** del
+`CLAUDE.md` de cada repo, o los descubren con `pubspec.yaml` y `lib/main_*_*.dart`.
+
+Prompt de ejemplo para un flujo completo:
 
 ```
 Implementa el flujo "Simulador de inversión" (HU en el índice de flujos).
@@ -39,49 +49,62 @@ Salida: "Invertir" → flujo de nueva inversión con monto y divisa precargados.
 Alcance de esta sesión: brief + capa de datos. La UI en la siguiente.
 ```
 
-Las skills no tienen valores de proyecto fijos: leen el `CLAUDE.md` de cada repo (tabla de variables) o los descubren con `pubspec.yaml` y `lib/main_*_*.dart`.
+**En automatización desatendida:** las skills `figma-*` necesitan Figma y Google Drive con login
+de una persona, y `flutter-build-release` necesita macOS para el IPA y credenciales de rclone.
+Úsalas en sesiones de devs; el orquestador usa solo las demás.
 
-## Instalar (una vez por máquina)
+## `pgi-cerebro`
 
-Dentro de Claude Code:
+| Skill | Cuándo se activa |
+|---|---|
+| `capturar-conocimiento` | Entrevistar a un dev y escribir `docs/knowledge/<area>-<nombre>.md` en el repo cerebro |
+
+## Instalar
+
+Dentro de Claude Code (una vez por máquina):
 
 ```
-/plugin marketplace add <usuario-u-org>/nextline-pgi-flutter
-/plugin install nextline-pgi-flutter@nextline-pgi
+/plugin marketplace add BAP-Corporativo/pgi-claude-plugins
+/plugin install pgi-flutter@pgi
+/plugin install pgi-cerebro@pgi
 ```
 
-## Actualizar después de un push
-
-`plugin.json` no fija `version`, así que cada commit cuenta como versión nueva.
-
-```bash
-claude plugin update nextline-pgi-flutter@nextline-pgi
-```
-
-O activa el auto-update del marketplace en `/plugin` → Marketplaces.
-
-## Declararlo en un proyecto
-
-Desde la raíz del proyecto Flutter:
-
-```bash
-claude plugin marketplace add <usuario-u-org>/nextline-pgi-flutter --scope project
-```
-
-Commitea el `.claude/settings.json` que se genera. Debe quedar así:
+Para declararlo en un repo y que se instale solo al abrirlo, agrega a su `.claude/settings.json`
+y commitéalo:
 
 ```json
 {
   "extraKnownMarketplaces": {
-    "nextline-pgi": { "source": { "source": "github", "repo": "<usuario-u-org>/nextline-pgi-flutter" } }
+    "pgi": { "source": { "source": "github", "repo": "BAP-Corporativo/pgi-claude-plugins" } }
   },
-  "enabledPlugins": { "nextline-pgi-flutter@nextline-pgi": true }
+  "enabledPlugins": { "pgi-flutter@pgi": true }
 }
 ```
+
+En el servidor y en el orquestador, fija una versión con `"ref": "<tag>"` dentro de `source`.
+
+**Si ya tenías `nextline-pgi-flutter@nextline-pgi`:** desinstálalo y vuelve a instalar como
+`pgi-flutter@pgi`; el plugin y el marketplace cambiaron de nombre.
+
+## Versiones
+
+- Cada plugin declara `version` en su `.claude-plugin/plugin.json`. Súbela en el mismo PR que
+  cambia el plugin (semver: parche para correcciones, menor para skills nuevas, mayor si cambia
+  cómo se usa).
+- Cada release lleva un tag `<plugin>-v<versión>` (p. ej. `pgi-flutter-v1.0.0`).
+- Actualizar: `claude plugin update pgi-flutter@pgi`, o activa el auto-update en
+  `/plugin` → Marketplaces.
 
 ## Desarrollar y probar sin publicar
 
 ```bash
-claude --plugin-dir ./nextline-pgi-flutter
+claude --plugin-dir ./plugins/pgi-flutter
 claude plugin validate .
 ```
+
+## Agregar un plugin
+
+1. Crea `plugins/<nombre>/.claude-plugin/plugin.json` con `name`, `version`, `description` y `author`.
+2. Pon sus skills en `plugins/<nombre>/skills/<skill>/SKILL.md`.
+3. Regístralo en `.claude-plugin/marketplace.json` y en la tabla de este README.
+4. Nada de credenciales, hosts ni datos de clientes en las skills.

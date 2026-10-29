@@ -1,7 +1,0 @@
-{
-  "name": "nextline-pgi-flutter",
-  "description": "Convenciones compartidas de los proyectos Flutter de Nextline PGI: scaffold de features, endpoints/DTOs, localización intl, flavors, builds de release y traducción de CSS de Figma.",
-  "author": {
-    "name": "Joel"
-  }
-}
