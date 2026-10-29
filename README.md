@@ -64,7 +64,7 @@ de una persona, y `flutter-build-release` necesita macOS para el IPA y credencia
 Dentro de Claude Code (una vez por máquina):
 
 ```
-/plugin marketplace add BAP-Corporativo/pgi-claude-plugin-flutter
+/plugin marketplace add BAP-Corporativo/pgi-claude-plugins
 /plugin install pgi-flutter@pgi
 /plugin install pgi-cerebro@pgi
 ```
@@ -75,7 +75,7 @@ y commitéalo:
 ```json
 {
   "extraKnownMarketplaces": {
-    "pgi": { "source": { "source": "github", "repo": "BAP-Corporativo/pgi-claude-plugin-flutter" } }
+    "pgi": { "source": { "source": "github", "repo": "BAP-Corporativo/pgi-claude-plugins" } }
   },
   "enabledPlugins": { "pgi-flutter@pgi": true }
 }
